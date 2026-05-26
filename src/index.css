@@ -1,0 +1,328 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font: 'Poppins', sans-serif;
+  --bg: #FFFFFF;
+  --surface: #F8F7FF;
+  --border: #EBEBF5;
+  --text-primary: #1A1A2E;
+  --text-secondary: #6B6B8A;
+  --text-muted: #ABABC4;
+  --grad-start: #A856F7;
+  --grad-mid: #6A5ACD;
+  --grad-end: #00A1E0;
+  --gradient: linear-gradient(135deg, var(--grad-start), var(--grad-mid), var(--grad-end));
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 2px 8px rgba(168, 86, 247, 0.08);
+  --shadow-md: 0 4px 20px rgba(106, 90, 205, 0.15);
+  --topbar-h: 64px;
+  --sidebar-w: 260px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font);
+  color: var(--text-primary);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  font-family: var(--font);
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: var(--font);
+}
+
+/* Preserve monospace for code blocks only */
+code,
+pre,
+kbd,
+samp {
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--grad-start);
+  outline-offset: 2px;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(26, 26, 46, 0.12);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(26, 26, 46, 0.22);
+}
+
+/* ── Keyframes ── */
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes messageSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sidebarSlideIn {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+@keyframes drawerSlideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes agentPulse {
+  0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 currentColor; }
+  50% { transform: scale(1.25); opacity: 0.85; box-shadow: 0 0 0 4px rgba(168,86,247,0); }
+}
+
+.agent-pulse {
+  animation: agentPulse 1.4s ease-in-out infinite;
+}
+
+/* ── Utility classes ── */
+.gradient-text {
+  background: linear-gradient(135deg, var(--grad-start), var(--grad-mid), var(--grad-end));
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: gradientShift 5s ease infinite;
+}
+
+.message-enter {
+  animation: messageSlideUp 200ms ease-out both;
+}
+
+.fade-in-up {
+  animation: fadeInUp 400ms ease-out both;
+}
+
+.sidebar-slide-in {
+  animation: sidebarSlideIn 300ms ease-out both;
+}
+
+/* ── Markdown prose for assistant messages ── */
+.orx-prose {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: inherit;
+}
+.orx-prose p {
+  margin: 0 0 0.6em;
+}
+.orx-prose p:last-child {
+  margin-bottom: 0;
+}
+.orx-prose ul,
+.orx-prose ol {
+  margin: 0.4em 0 0.6em;
+  padding-left: 1.25em;
+}
+.orx-prose li {
+  margin-bottom: 0.2em;
+}
+.orx-prose strong {
+  font-weight: 600;
+  color: inherit;
+}
+.orx-prose code {
+  background: rgba(168, 86, 247, 0.08);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+  color: #6A5ACD;
+}
+.orx-prose pre {
+  background: #1A1A2E;
+  color: #F8F7FF;
+  padding: 12px 14px;
+  border-radius: 10px;
+  overflow-x: auto;
+  font-size: 12.5px;
+  margin: 0.5em 0;
+}
+.orx-prose pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+.orx-prose a {
+  color: var(--grad-mid);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.orx-prose hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(168, 86, 247, 0) 0%,
+    var(--grad-start) 20%,
+    var(--grad-mid) 50%,
+    var(--grad-end) 80%,
+    rgba(0, 161, 224, 0) 100%
+  );
+  border-radius: 2px;
+  margin: 1.25em 0;
+  opacity: 0.85;
+}
+
+/* User bubble prose overrides */
+.orx-prose-on-gradient,
+.orx-prose-on-gradient * {
+  color: #FFFFFF !important;
+}
+.orx-prose-on-gradient code {
+  background: rgba(255, 255, 255, 0.18);
+  color: #FFFFFF !important;
+}
+.orx-prose-on-gradient a {
+  color: #FFFFFF !important;
+}
+
+/* ── Login screen aesthetic ── */
+.orx-login-bg {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(168, 86, 247, 0.18), transparent 55%),
+    radial-gradient(circle at 85% 80%, rgba(0, 161, 224, 0.18), transparent 55%),
+    radial-gradient(circle at 50% 50%, rgba(106, 90, 205, 0.10), transparent 70%),
+    #FFFFFF;
+}
+
+/* ── Auth split layout (login + agent workflow) ── */
+.orx-auth-page {
+  display: flex;
+  min-height: 100vh;
+  background: #FAFAFE;
+}
+
+.orx-auth-left {
+  flex: 1;
+  background: linear-gradient(
+    160deg,
+    #faf8ff 0%,
+    #f3eefa 30%,
+    #eee8fb 50%,
+    #e8eafb 70%,
+    #f0eefa 100%
+  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  overflow: hidden;
+  position: relative;
+}
+
+.orx-auth-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, #c4b4e0 0.6px, transparent 0.6px);
+  background-size: 20px 20px;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.orx-auth-right {
+  width: 440px;
+  min-width: 440px;
+  border-left: 1px solid var(--border);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 52px 48px;
+}
+
+@media (max-width: 860px) {
+  .orx-auth-page {
+    flex-direction: column;
+  }
+  .orx-auth-left {
+    min-height: 52vh;
+    flex: none;
+    padding: 32px 24px;
+  }
+  .orx-auth-right {
+    width: 100%;
+    min-width: 0;
+    flex: 1;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    padding: 32px 24px 48px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --sidebar-w: 280px;
+  }
+}
