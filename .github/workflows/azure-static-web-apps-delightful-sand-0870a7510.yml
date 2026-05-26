@@ -34,6 +34,7 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
           ###### End of Repository/Build Configurations ######
+          # force rebuild
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
