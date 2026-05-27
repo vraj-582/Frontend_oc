@@ -106,8 +106,22 @@ function Topbar({
             margin: 0,
             cursor: 'pointer',
             lineHeight: 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
           }}
         >
+          <img
+            src="/logo.svg"
+            alt="Orchestrix logo"
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 8,
+              objectFit: 'cover',
+              flexShrink: 0,
+            }}
+          />
           <span
             className="gradient-text"
             style={{

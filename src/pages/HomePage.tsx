@@ -47,18 +47,31 @@ function Navbar({ user, onLogout }: { user: User; onLogout: () => void }) {
         padding: '0 32px',
       }}
     >
-      <h1
-        className="gradient-text"
-        style={{
-          fontWeight: 700,
-          fontSize: 22,
-          letterSpacing: '-0.02em',
-          margin: 0,
-          lineHeight: 1,
-        }}
-      >
-        Orchestrix
-      </h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <img
+          src="/logo.svg"
+          alt="Orchestrix logo"
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: 8,
+            objectFit: 'cover',
+            flexShrink: 0,
+          }}
+        />
+        <h1
+          className="gradient-text"
+          style={{
+            fontWeight: 700,
+            fontSize: 22,
+            letterSpacing: '-0.02em',
+            margin: 0,
+            lineHeight: 1,
+          }}
+        >
+          Orchestrix
+        </h1>
+      </div>
 
       <div style={{ position: 'relative' }}>
         <button

@@ -92,12 +92,12 @@ select:focus-visible {
   background: rgba(26, 26, 46, 0.22);
 }
 
-/* Dark sidebar scrollbar */
+/* Sidebar scrollbar */
 aside ::-webkit-scrollbar-thumb {
-  background: rgba(168, 86, 247, 0.20);
+  background: rgba(168, 86, 247, 0.15);
 }
 aside ::-webkit-scrollbar-thumb:hover {
-  background: rgba(168, 86, 247, 0.35);
+  background: rgba(168, 86, 247, 0.25);
 }
 
 /* ── Keyframes ── */

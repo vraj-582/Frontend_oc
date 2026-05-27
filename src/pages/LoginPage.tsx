@@ -145,15 +145,28 @@ export function LoginPage({
             zIndex: 2,
           }}
         >
-          <div
-            className="gradient-text"
-            style={{
-              fontSize: 22,
-              fontWeight: 700,
-              letterSpacing: '-0.02em',
-            }}
-          >
-            Orchestrix
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <img
+              src="/logo.svg"
+              alt="Orchestrix logo"
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: 8,
+                objectFit: 'cover',
+                flexShrink: 0,
+              }}
+            />
+            <span
+              className="gradient-text"
+              style={{
+                fontSize: 22,
+                fontWeight: 700,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              Orchestrix
+            </span>
           </div>
           <div
             style={{
@@ -181,17 +194,30 @@ export function LoginPage({
           }}
         >
           <div style={{ textAlign: 'center', marginBottom: 28 }}>
-            <h1
-              style={{
-                fontSize: 22,
-                fontWeight: 700,
-                color: 'var(--text-primary)',
-                margin: 0,
-                letterSpacing: '-0.02em',
-              }}
-            >
-              Orchestrix<span style={{ color: 'var(--grad-start)' }}>.</span>
-            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <img
+                src="/logo.svg"
+                alt="Orchestrix logo"
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 8,
+                  objectFit: 'cover',
+                  flexShrink: 0,
+                }}
+              />
+              <h1
+                style={{
+                  fontSize: 22,
+                  fontWeight: 700,
+                  color: 'var(--text-primary)',
+                  margin: 0,
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                Orchestrix<span style={{ color: 'var(--grad-start)' }}>.</span>
+              </h1>
+            </div>
             <p
               style={{
                 fontSize: 13,
