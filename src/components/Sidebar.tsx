@@ -6,11 +6,26 @@ import toast from 'react-hot-toast'
 type AgentKey = 'orchestrator' | 'knowledge' | 'web'
 type AgentStatus = 'active' | 'querying' | 'completed' | 'standby' | 'idle'
 
+/* ── Dark-sidebar palette (matches site gradient theme) ── */
+const DARK = {
+  bg: 'linear-gradient(180deg, #1E1535 0%, #150F28 100%)',
+  surface: '#1E1535',
+  border: 'rgba(168, 86, 247, 0.15)',
+  textPrimary: '#F0ECF9',
+  textSecondary: '#A99BC8',
+  textMuted: '#7B6E99',
+  hoverBg: 'rgba(168, 86, 247, 0.08)',
+  activeBg: 'rgba(168, 86, 247, 0.15)',
+  activeHighlight: 'rgba(168, 86, 247, 0.22)',
+  iconBg: 'rgba(168, 86, 247, 0.10)',
+  iconBorder: 'rgba(168, 86, 247, 0.20)',
+}
+
 const AGENTS: { key: AgentKey; label: string; color: string; icon: React.ReactNode }[] = [
   {
     key: 'orchestrator',
     label: 'ORCHESTRATOR',
-    color: 'var(--grad-mid)',
+    color: '#A856F7',
     icon: (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="6" cy="6" r="2.5" />
@@ -34,7 +49,7 @@ const AGENTS: { key: AgentKey; label: string; color: string; icon: React.ReactNo
   {
     key: 'web',
     label: 'WEB',
-    color: 'var(--grad-start)',
+    color: '#00A1E0',
     icon: (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10" />
@@ -79,7 +94,7 @@ function AgentStatusPanel({
   return (
     <div
       style={{
-        borderTop: '1px solid var(--border)',
+        borderTop: `1px solid ${DARK.border}`,
         padding: '12px 10px 14px',
         display: 'flex',
         flexDirection: 'column',
@@ -93,7 +108,7 @@ function AgentStatusPanel({
           fontWeight: 600,
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
-          color: 'var(--text-secondary)',
+          color: DARK.textSecondary,
         }}
       >
         Agents
@@ -105,12 +120,12 @@ function AgentStatusPanel({
         const isDone = status === 'completed'
 
         const iconBg = isActive
-          ? `${a.color}1F`
+          ? `${a.color}22`
           : isDone
-            ? 'rgba(16,185,129,0.12)'
-            : 'var(--bg)'
-        const iconColor = isActive ? a.color : isDone ? '#10B981' : 'var(--text-muted)'
-        const dotColor = isActive ? a.color : isDone ? '#10B981' : 'rgba(26,26,46,0.20)'
+            ? 'rgba(16,185,129,0.15)'
+            : DARK.iconBg
+        const iconColor = isActive ? a.color : isDone ? '#10B981' : DARK.textMuted
+        const dotColor = isActive ? a.color : isDone ? '#10B981' : DARK.textMuted
 
         return (
           <div
@@ -121,7 +136,7 @@ function AgentStatusPanel({
               gap: 10,
               padding: '8px 8px',
               borderRadius: 'var(--radius-sm)',
-              background: isActive ? '#F3F0FF' : 'transparent',
+              background: isActive ? DARK.activeBg : 'transparent',
               transition: 'background 200ms ease',
             }}
           >
@@ -131,7 +146,7 @@ function AgentStatusPanel({
                 height: 30,
                 borderRadius: 8,
                 background: iconBg,
-                border: '1px solid var(--border)',
+                border: `1px solid ${DARK.iconBorder}`,
                 color: iconColor,
                 display: 'flex',
                 alignItems: 'center',
@@ -148,7 +163,7 @@ function AgentStatusPanel({
                   fontSize: 11,
                   fontWeight: 600,
                   letterSpacing: '0.06em',
-                  color: 'var(--text-primary)',
+                  color: DARK.textPrimary,
                 }}
               >
                 {a.label}
@@ -167,7 +182,7 @@ function AgentStatusPanel({
                 <span
                   style={{
                     fontSize: 10,
-                    color: 'var(--text-secondary)',
+                    color: DARK.textSecondary,
                     fontWeight: 500,
                   }}
                 >
@@ -221,7 +236,11 @@ function ChatItem({
         flexDirection: 'column',
         width: '100%',
         padding: '10px 14px',
-        background: isActive ? '#EDE9FF' : hovered ? '#F3F0FF' : 'transparent',
+        background: isActive
+          ? DARK.activeHighlight
+          : hovered
+            ? DARK.hoverBg
+            : 'transparent',
         textAlign: 'left',
         transition: 'background 150ms ease',
         cursor: 'pointer',
@@ -256,7 +275,7 @@ function ChatItem({
           style={{
             fontSize: 14,
             fontWeight: 500,
-            color: 'var(--text-primary)',
+            color: DARK.textPrimary,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
@@ -274,7 +293,7 @@ function ChatItem({
             style={{
               background: 'transparent',
               border: 'none',
-              color: 'var(--text-muted)',
+              color: DARK.textMuted,
               cursor: 'pointer',
               padding: 2,
               display: 'flex',
@@ -283,8 +302,8 @@ function ChatItem({
               flexShrink: 0,
               transition: 'color 150ms ease',
             }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#DC2626')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+            onMouseEnter={e => (e.currentTarget.style.color = '#F87171')}
+            onMouseLeave={e => (e.currentTarget.style.color = DARK.textMuted)}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M3 6h18" />
@@ -297,7 +316,7 @@ function ChatItem({
           <span
             style={{
               fontSize: 11,
-              color: 'var(--text-muted)',
+              color: DARK.textMuted,
               flexShrink: 0,
               fontWeight: 400,
             }}
@@ -311,7 +330,7 @@ function ChatItem({
         style={{
           fontSize: 12,
           fontWeight: 400,
-          color: 'var(--text-secondary)',
+          color: DARK.textSecondary,
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
@@ -320,6 +339,71 @@ function ChatItem({
       >
         {session.message_count} message{session.message_count === 1 ? '' : 's'}
       </span>
+    </div>
+  )
+}
+
+/* ── Branding header with logo ── */
+function BrandingHeader({ onClose, isMobile }: { onClose?: () => void; isMobile: boolean }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '20px 16px 12px',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <img
+          src="/logo.svg"
+          alt="Orchestrix logo"
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            objectFit: 'cover',
+            flexShrink: 0,
+          }}
+        />
+        <span
+          style={{
+            fontWeight: 700,
+            fontSize: 20,
+            letterSpacing: '-0.02em',
+            background: 'linear-gradient(135deg, #C084FC, #A856F7, #818CF8, #00A1E0)',
+            backgroundSize: '200% 200%',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            color: 'transparent',
+            animation: 'gradientShift 5s ease infinite',
+          }}
+        >
+          Orchestrix
+        </span>
+      </div>
+
+      {isMobile && onClose && (
+        <button
+          onClick={onClose}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: DARK.textSecondary,
+            fontSize: 18,
+            padding: '4px 6px',
+            borderRadius: 6,
+            cursor: 'pointer',
+            lineHeight: 1,
+            transition: 'color 150ms ease',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.color = DARK.textPrimary)}
+          onMouseLeave={e => (e.currentTarget.style.color = DARK.textSecondary)}
+        >
+          ✕
+        </button>
+      )}
     </div>
   )
 }
@@ -367,8 +451,8 @@ export function Sidebar({
   const sidebarStyle: React.CSSProperties = {
     width: collapsedOnDesktop ? 0 : 'var(--sidebar-w)',
     height: isMobile ? '100vh' : '100%',
-    background: 'var(--surface)',
-    borderRight: collapsedOnDesktop ? 'none' : '1px solid var(--border)',
+    background: DARK.bg,
+    borderRight: collapsedOnDesktop ? 'none' : `1px solid ${DARK.border}`,
     display: 'flex',
     flexDirection: 'column',
     position: isMobile ? 'fixed' : 'relative',
@@ -390,7 +474,7 @@ export function Sidebar({
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(26,26,46,0.35)',
+            background: 'rgba(10, 6, 20, 0.55)',
             zIndex: 199,
             animation: 'overlayFadeIn 200ms ease-out',
           }}
@@ -398,40 +482,19 @@ export function Sidebar({
       )}
 
       <aside style={sidebarStyle}>
-        {isMobile && (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '16px 14px 0',
-            }}
-          >
-            <span
-              className="gradient-text"
-              style={{ fontWeight: 700, fontSize: 20, letterSpacing: '-0.02em' }}
-            >
-              Orchestrix
-            </span>
-            <button
-              onClick={onClose}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-secondary)',
-                fontSize: 18,
-                padding: '4px 6px',
-                borderRadius: 6,
-                cursor: 'pointer',
-                lineHeight: 1,
-              }}
-            >
-              ✕
-            </button>
-          </div>
-        )}
+        {/* ── Branding header ── */}
+        <BrandingHeader onClose={onClose} isMobile={isMobile} />
 
-        <div style={{ padding: '16px 14px 12px' }}>
+        {/* ── Subtle separator under branding ── */}
+        <div
+          style={{
+            height: 1,
+            margin: '0 16px 4px',
+            background: `linear-gradient(90deg, transparent, ${DARK.border}, transparent)`,
+          }}
+        />
+
+        <div style={{ padding: '12px 14px 12px' }}>
           <button
             onClick={onNewChat}
             style={{
@@ -447,12 +510,18 @@ export function Sidebar({
               alignItems: 'center',
               justifyContent: 'center',
               gap: 8,
-              transition: 'filter 150ms ease',
+              transition: 'filter 150ms ease, box-shadow 150ms ease',
               cursor: 'pointer',
-              boxShadow: 'var(--shadow-sm)',
+              boxShadow: '0 2px 12px rgba(168, 86, 247, 0.25)',
             }}
-            onMouseEnter={e => (e.currentTarget.style.filter = 'brightness(1.1)')}
-            onMouseLeave={e => (e.currentTarget.style.filter = 'brightness(1)')}
+            onMouseEnter={e => {
+              e.currentTarget.style.filter = 'brightness(1.15)'
+              e.currentTarget.style.boxShadow = '0 4px 20px rgba(168, 86, 247, 0.35)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.filter = 'brightness(1)'
+              e.currentTarget.style.boxShadow = '0 2px 12px rgba(168, 86, 247, 0.25)'
+            }}
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <path d="M12 5v14M5 12h14" />
@@ -468,7 +537,7 @@ export function Sidebar({
             fontWeight: 600,
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
-            color: 'var(--text-secondary)',
+            color: DARK.textSecondary,
           }}
         >
           Recent
@@ -480,7 +549,7 @@ export function Sidebar({
               style={{
                 padding: '16px 14px',
                 fontSize: 12,
-                color: 'var(--text-muted)',
+                color: DARK.textMuted,
               }}
             >
               No conversations yet.
