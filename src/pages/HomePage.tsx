@@ -16,7 +16,10 @@ function initialsOf(name: string) {
 }
 
 function relativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime()
+  // Backend returns UTC timestamps without 'Z' — append it so the
+  // browser treats them as UTC instead of local time.
+  const utc = iso.endsWith('Z') || iso.includes('+') ? iso : iso + 'Z'
+  const diff = Date.now() - new Date(utc).getTime()
   const min = Math.floor(diff / 60000)
   const hr = Math.floor(min / 60)
   const day = Math.floor(hr / 24)
@@ -25,7 +28,7 @@ function relativeTime(iso: string): string {
   if (hr < 24) return `${hr} hr ago`
   if (day === 1) return 'Yesterday'
   if (day < 7) return `${day} days ago`
-  return new Date(iso).toLocaleDateString()
+  return new Date(utc).toLocaleDateString()
 }
 
 function Navbar({ user, onLogout }: { user: User; onLogout: () => void }) {

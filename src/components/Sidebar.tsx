@@ -194,7 +194,10 @@ function AgentStatusPanel({
 }
 
 function relativeTime(iso: string): string {
-  const date = new Date(iso)
+  // Backend returns UTC timestamps without 'Z' — append it so the
+  // browser treats them as UTC instead of local time.
+  const utc = iso.endsWith('Z') || iso.includes('+') ? iso : iso + 'Z'
+  const date = new Date(utc)
   const diffMs = Date.now() - date.getTime()
   const sec = Math.floor(diffMs / 1000)
   const min = Math.floor(sec / 60)
