@@ -1,5 +1,20 @@
 import ReactMarkdown from 'react-markdown'
+import type { Components } from 'react-markdown'
 import type { Message } from '../types'
+
+// All links in AI responses open in a new tab
+const markdownComponents: Components = {
+  a: ({ href, children, ...props }) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      {...props}
+    >
+      {children}
+    </a>
+  ),
+}
 
 type AgentKey = 'knowledge' | 'web' | 'both' | 'none'
 
@@ -113,7 +128,7 @@ export function MessageBubble({ message, isNew }: { message: Message; isNew?: bo
           }}
         >
           <div className="orx-prose orx-prose-on-gradient">
-            <ReactMarkdown>{message.content}</ReactMarkdown>
+            <ReactMarkdown components={markdownComponents}>{message.content}</ReactMarkdown>
           </div>
         </div>
       </div>
@@ -168,7 +183,7 @@ export function MessageBubble({ message, isNew }: { message: Message; isNew?: bo
           </div>
         )}
         <div className="orx-prose">
-          <ReactMarkdown>{message.content}</ReactMarkdown>
+          <ReactMarkdown components={markdownComponents}>{message.content}</ReactMarkdown>
         </div>
       </div>
     </div>
