@@ -248,7 +248,7 @@ function Topbar({
 }
 
 export function ChatPage({ user, onLogout }: { user: User; onLogout: () => void }) {
-  const { messages, sessionId, isLoading, send, loadSession, clearChat } = useChat()
+  const { messages, sessionId, isLoading, send, stop, loadSession, clearChat } = useChat()
   const isMobile = useMediaQuery('(max-width: 767px)')
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
@@ -332,7 +332,7 @@ export function ChatPage({ user, onLogout }: { user: User; onLogout: () => void 
           }}
         >
           <ChatWindow messages={messages} isLoading={isLoading} onSend={handleSend} />
-          <InputBar onSend={handleSend} disabled={isLoading} />
+          <InputBar onSend={handleSend} onStop={stop} disabled={isLoading} />
         </main>
       </div>
     </div>

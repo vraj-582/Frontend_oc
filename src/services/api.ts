@@ -41,8 +41,12 @@ export const login = async (email: string, password: string): Promise<AuthRespon
 
 // ── Chat ──────────────────────────────────────────────────────────────
 
-export const sendMessage = async (message: string, session_id?: string): Promise<ChatResponse> => {
-  const res = await api.post('/api/chat', { message, session_id })
+export const sendMessage = async (
+  message: string,
+  session_id?: string,
+  signal?: AbortSignal,
+): Promise<ChatResponse> => {
+  const res = await api.post('/api/chat', { message, session_id }, { signal })
   return res.data
 }
 
