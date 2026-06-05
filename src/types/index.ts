@@ -32,3 +32,30 @@ export interface ChatResponse {
   session_id: string
   message_id: string
 }
+
+// ── SSE Route Panel types ────────────────────────────────────
+
+export type StepName = 'manager' | 'knowledge' | 'web' | 'synthesis'
+export type StepStatus = 'pending' | 'active' | 'done' | 'error'
+export type RouteName = 'INTERNAL' | 'WEB' | 'BOTH' | 'NONE'
+
+export interface RouteStep {
+  name: StepName
+  status: StepStatus
+  label: string
+  detail: string
+}
+
+export interface LogEntry {
+  ts: string
+  text: string
+  color?: string
+}
+
+export interface RouteRun {
+  status: 'idle' | 'running' | 'done' | 'error'
+  route: RouteName | null
+  steps: RouteStep[]
+  elapsed: number
+  log: LogEntry[]
+}

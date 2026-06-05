@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Sidebar } from '../components/Sidebar'
 import { ChatWindow } from '../components/ChatWindow'
 import { InputBar } from '../components/InputBar'
-import { useChat } from '../hooks/useChat'
+import { RoutePanel } from '../components/RoutePanel'
+import { useStreamChat } from '../hooks/useStreamChat'
 import type { Message, User } from '../types'
 
 function useMediaQuery(query: string) {
@@ -248,7 +249,8 @@ function Topbar({
 }
 
 export function ChatPage({ user, onLogout }: { user: User; onLogout: () => void }) {
-  const { messages, sessionId, isLoading, send, stop, loadSession, clearChat } = useChat()
+  const { messages, sessionId, isLoading, run, send, stop, loadSession, clearChat } = useStreamChat()
+  const [routePanelOpen, setRoutePanelOpen] = useState(true)
   const isMobile = useMediaQuery('(max-width: 767px)')
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
@@ -334,6 +336,29 @@ export function ChatPage({ user, onLogout }: { user: User; onLogout: () => void 
           <ChatWindow messages={messages} isLoading={isLoading} onSend={handleSend} />
           <InputBar onSend={handleSend} onStop={stop} disabled={isLoading} />
         </main>
+
+        {!isMobile && (
+          <RoutePanel run={run} open={routePanelOpen} onClose={() => setRoutePanelOpen(false)} />
+        )}
+        {!isMobile && !routePanelOpen && (
+          <button
+            onClick={() => setRoutePanelOpen(true)}
+            title="Show agent route"
+            style={{
+              position: 'fixed', right: 18, bottom: 90, zIndex: 20,
+              width: 48, height: 48, borderRadius: 14,
+              background: 'var(--gradient)', color: '#fff',
+              display: 'grid', placeItems: 'center',
+              boxShadow: '0 10px 26px rgba(108,71,240,.4)',
+              border: 'none', cursor: 'pointer',
+            }}
+          >
+            <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="6" cy="19" r="2.4" /><circle cx="18" cy="5" r="2.4" />
+              <path d="M8.4 19H14a4 4 0 0 0 0-8H9a4 4 0 0 1 0-8h6.6" />
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   )
