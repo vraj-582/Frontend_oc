@@ -104,6 +104,160 @@ function RouteBadge({ route }: { route: RouteName | null }) {
   )
 }
 
+// ── Flow graph view ─────────────────────────────────────────
+const GRAPH_NODES: Record<string, { x: number; y: number; w: number; kind: string; label: string }> = {
+  start:     { x: 104, y: 6,   w: 92,  kind: 'start',        label: 'Start'     },
+  manager:   { x: 92,  y: 78,  w: 116, kind: 'manager',      label: 'Manager'   },
+  router:    { x: 100, y: 150, w: 100, kind: 'route',        label: 'Ro...'     },
+  knowledge: { x: 8,   y: 232, w: 110, kind: 'knowledge',    label: 'Knowle...' },
+  web:       { x: 182, y: 232, w: 92,  kind: 'web',          label: 'Web'       },
+  synthesis: { x: 92,  y: 314, w: 116, kind: 'synthesis',    label: 'Synthesis' },
+  response:  { x: 100, y: 392, w: 100, kind: 'respond',      label: 'Resp...'   },
+}
+const NODE_H = 44
+const CANVAS_W = 300
+const CANVAS_H = 446
+
+const TAKEN: Record<string, string[]> = {
+  INTERNAL: ['start', 'manager', 'router', 'knowledge', 'synthesis', 'response'],
+  WEB:      ['start', 'manager', 'router', 'web',       'synthesis', 'response'],
+  BOTH:     ['start', 'manager', 'router', 'knowledge', 'web', 'synthesis', 'response'],
+  NONE:     ['start', 'manager', 'router', 'response'],
+}
+
+const NODE_ICONS: Record<string, (p: { size?: number }) => JSX.Element> = {
+  start:     IconRoute,
+  manager:   IconBranch,
+  route:     IconRoute,
+  knowledge: IconDatabase,
+  web:       IconGlobe,
+  synthesis: IconLayers,
+  respond:   IconTerminal,
+}
+
+function FlowView({ run }: { run: RouteRun }) {
+  const route = run.route
+  const taken = new Set(route ? TAKEN[route] : ['start', 'manager', 'router'])
+
+  const nodeStatus = (key: string): 'pending' | 'active' | 'done' => {
+    if (key === 'start') return run.status === 'idle' ? 'pending' : 'done'
+    const n = GRAPH_NODES[key]
+    if (!n) return 'pending'
+    const kind = n.kind === 'route' ? 'route' : n.kind
+    const step = run.steps.find(s => s.name === kind || (key === 'router' && s.name === 'manager'))
+    if (key === 'router') {
+      // router is done when route is known
+      return route ? 'done' : run.steps.find(s => s.name === 'manager')?.status === 'done' ? 'done' : 'pending'
+    }
+    return step ? (step.status as 'pending' | 'active' | 'done') : 'pending'
+  }
+
+  const anchorB = (n: typeof GRAPH_NODES[string]) => ({ x: n.x + n.w / 2, y: n.y + NODE_H })
+  const anchorT = (n: typeof GRAPH_NODES[string]) => ({ x: n.x + n.w / 2, y: n.y })
+
+  const edges: [string, string, string?][] = [
+    ['start', 'manager'],
+    ['manager', 'router'],
+  ]
+  if (route === 'NONE') {
+    edges.push(['router', 'response', 'skip'])
+  } else {
+    if (!route || taken.has('knowledge')) edges.push(['router', 'knowledge'])
+    if (!route || taken.has('web'))       edges.push(['router', 'web'])
+    if (!route || taken.has('knowledge')) edges.push(['knowledge', 'synthesis'])
+    if (!route || taken.has('web'))       edges.push(['web', 'synthesis'])
+    edges.push(['synthesis', 'response'])
+  }
+
+  const edgeState = (a: string, b: string): 'dim' | 'done' | 'active' | 'ready' | 'pending' => {
+    const onPath = taken.has(a) && taken.has(b)
+    if (!onPath && route) return 'dim'
+    const sa = nodeStatus(a), sb = nodeStatus(b)
+    if (sa === 'done' && sb === 'done') return 'done'
+    if (sa === 'done' && sb === 'active') return 'active'
+    if (sa === 'done' && sb === 'pending') return 'ready'
+    return 'pending'
+  }
+
+  return (
+    <div style={{ padding: '14px 16px 22px', display: 'flex', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', width: CANVAS_W, height: CANVAS_H }}>
+        {/* SVG edges */}
+        <svg width={CANVAS_W} height={CANVAS_H} style={{ position: 'absolute', inset: 0, overflow: 'visible' }}>
+          {edges.map(([a, b], i) => {
+            const na = GRAPH_NODES[a], nb = GRAPH_NODES[b]
+            if (!na || !nb) return null
+            const p1 = anchorB(na), p2 = anchorT(nb)
+            const my = (p1.y + p2.y) / 2
+            const d = `M${p1.x},${p1.y} C${p1.x},${my} ${p2.x},${my} ${p2.x},${p2.y}`
+            const st = edgeState(a, b)
+            const dim = st === 'dim'
+            const stroke = dim ? '#E7E4F0'
+              : st === 'done' ? '#16B981'
+              : (st === 'active' || st === 'ready') ? '#7C5CFF'
+              : '#D7D3E8'
+            return (
+              <g key={i}>
+                <path d={d} fill="none" stroke={stroke} strokeWidth={dim ? 1.5 : 2.2}
+                  strokeDasharray={st === 'ready' || dim ? '5 6' : 'none'}
+                  strokeLinecap="round" opacity={dim ? 0.7 : 1} />
+                {st === 'active' && (
+                  <path d={d} fill="none" stroke="#fff" strokeWidth={2.4}
+                    strokeDasharray="6 18" strokeLinecap="round"
+                    style={{ animation: 'flowDash .7s linear infinite' }} opacity={0.95} />
+                )}
+              </g>
+            )
+          })}
+        </svg>
+
+        {/* Nodes */}
+        {Object.entries(GRAPH_NODES).map(([key, n]) => {
+          const m = STEP_META[n.kind] || STEP_META.manager
+          const st = nodeStatus(key)
+          const onPath = taken.has(key)
+          const dim = !!(route && !onPath)
+          const active = st === 'active'
+          const done = st === 'done'
+          const Icon = NODE_ICONS[n.kind] || IconBranch
+          return (
+            <div key={key} style={{
+              position: 'absolute', left: n.x, top: n.y, width: n.w, height: NODE_H,
+              display: 'flex', alignItems: 'center', gap: 7, padding: '0 9px',
+              borderRadius: 11, background: '#fff',
+              border: `1.5px solid ${active ? m.color : done ? '#9be4c9' : '#E7E4F0'}`,
+              boxShadow: active ? `0 6px 18px ${m.color}33` : '0 1px 3px rgba(36,24,80,.05)',
+              opacity: dim ? 0.38 : 1, transition: 'all .35s',
+            }}>
+              <span style={{ width: 26, height: 26, borderRadius: 8, display: 'grid', placeItems: 'center',
+                flexShrink: 0, color: '#fff',
+                background: done ? '#16B981' : m.color }}>
+                {done && key !== 'router' ? <IconCheck size={15} /> : <Icon size={14} />}
+              </span>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontSize: 12.5, fontWeight: 700,
+                  color: dim ? '#928FAA' : '#211D38',
+                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{n.label}</div>
+              </div>
+              {active && (
+                <svg width={13} height={13} viewBox="0 0 24 24" fill="none"
+                  style={{ animation: 'spin .85s linear infinite', flexShrink: 0 }}>
+                  <circle cx="12" cy="12" r="9" stroke={m.color} strokeOpacity="0.18" strokeWidth={2.4} />
+                  <path d="M21 12a9 9 0 0 0-9-9" stroke={m.color} strokeWidth={2.4} strokeLinecap="round" />
+                </svg>
+              )}
+              {done && key === 'router' && route && (
+                <span style={{ width: 7, height: 7, borderRadius: 99,
+                  background: ROUTE_META[route]?.color || '#16B981', flexShrink: 0 }} />
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ── Timeline view ───────────────────────────────────────────
 function TimelineView({ run }: { run: RouteRun }) {
   const steps = run.steps
@@ -276,11 +430,21 @@ function IdleState() {
 }
 
 // ── Main RoutePanel ─────────────────────────────────────────
-type PanelView = 'timeline' | 'console'
+function IconGrid({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
+    </svg>
+  )
+}
+
+type PanelView = 'timeline' | 'flow' | 'console'
 
 const VIEWS: { id: PanelView; label: string; Icon: (p: { size?: number }) => JSX.Element }[] = [
   { id: 'timeline', label: 'Timeline', Icon: IconRoute },
-  { id: 'console', label: 'Console', Icon: IconTerminal },
+  { id: 'flow',     label: 'Flow',     Icon: IconGrid },
+  { id: 'console',  label: 'Console',  Icon: IconTerminal },
 ]
 
 export function RoutePanel({ run, open, onClose }: {
@@ -294,7 +458,7 @@ export function RoutePanel({ run, open, onClose }: {
 
   const m = run.route ? ROUTE_META[run.route] : null
   const idle = run.status === 'idle'
-  const PanelBody = view === 'timeline' ? TimelineView : ConsoleView
+  const PanelBody = view === 'timeline' ? TimelineView : view === 'flow' ? FlowView : ConsoleView
 
   return (
     <aside style={{

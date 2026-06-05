@@ -5,7 +5,7 @@ import { ChatWindow } from '../components/ChatWindow'
 import { InputBar } from '../components/InputBar'
 import { RoutePanel } from '../components/RoutePanel'
 import { useStreamChat } from '../hooks/useStreamChat'
-import type { Message, User } from '../types'
+import type { User } from '../types'
 
 function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(() =>
@@ -285,9 +285,6 @@ export function ChatPage({ user, onLogout }: { user: User; onLogout: () => void 
 
   const handleHome = useCallback(() => navigate('/home'), [navigate])
 
-  const lastAgent: Message['agent_used'] = [...messages]
-    .reverse()
-    .find(m => m.role === 'assistant')?.agent_used
 
   return (
     <div
@@ -318,8 +315,6 @@ export function ChatPage({ user, onLogout }: { user: User; onLogout: () => void 
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
           isMobile={isMobile}
-          isProcessing={isLoading}
-          lastAgent={lastAgent}
         />
 
         <main

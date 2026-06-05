@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getSessions, deleteSession } from '../services/api'
-import type { Message, Session } from '../types'
+import type { Session } from '../types'
 import toast from 'react-hot-toast'
-
-type AgentKey = 'orchestrator' | 'knowledge' | 'web'
-type AgentStatus = 'active' | 'querying' | 'completed' | 'standby' | 'idle'
 
 /* ── Soft pastel sidebar palette ── */
 const SIDEBAR = {
@@ -15,182 +12,6 @@ const SIDEBAR = {
   activeHighlight: 'rgba(168, 86, 247, 0.16)',
   iconBg: 'rgba(168, 86, 247, 0.07)',
   iconBorder: 'rgba(168, 86, 247, 0.15)',
-}
-
-const AGENTS: { key: AgentKey; label: string; color: string; icon: React.ReactNode }[] = [
-  {
-    key: 'orchestrator',
-    label: 'ORCHESTRATOR',
-    color: 'var(--grad-mid)',
-    icon: (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="6" cy="6" r="2.5" />
-        <circle cx="18" cy="6" r="2.5" />
-        <circle cx="12" cy="18" r="2.5" />
-        <path d="M7.8 7.6l3.2 8.2M16.2 7.6l-3.2 8.2" />
-      </svg>
-    ),
-  },
-  {
-    key: 'knowledge',
-    label: 'KNOWLEDGE',
-    color: '#0891B2',
-    icon: (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375M20.25 6.375c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375" />
-        <path d="M3.75 6.375v11.25c0 2.278 3.694 4.125 8.25 4.125s8.25-1.847 8.25-4.125V6.375" />
-      </svg>
-    ),
-  },
-  {
-    key: 'web',
-    label: 'WEB',
-    color: 'var(--grad-start)',
-    icon: (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M2 12h20" />
-        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-      </svg>
-    ),
-  },
-]
-
-function agentStatus(
-  key: AgentKey,
-  isProcessing: boolean,
-  lastAgent?: Message['agent_used']
-): AgentStatus {
-  if (isProcessing) {
-    if (key === 'orchestrator') return 'active'
-    return 'standby'
-  }
-  if (lastAgent === 'both' && (key === 'knowledge' || key === 'web')) return 'completed'
-  if (lastAgent === key) return 'completed'
-  return 'idle'
-}
-
-function statusLabel(s: AgentStatus): string {
-  switch (s) {
-    case 'active': return 'routing'
-    case 'querying': return 'querying'
-    case 'completed': return 'done'
-    case 'standby': return 'standby'
-    default: return 'idle'
-  }
-}
-
-function AgentStatusPanel({
-  isProcessing,
-  lastAgent,
-}: {
-  isProcessing: boolean
-  lastAgent?: Message['agent_used']
-}) {
-  return (
-    <div
-      style={{
-        borderTop: `1px solid ${SIDEBAR.border}`,
-        padding: '12px 10px 14px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 4,
-      }}
-    >
-      <div
-        style={{
-          padding: '4px 6px 8px',
-          fontSize: 10,
-          fontWeight: 600,
-          textTransform: 'uppercase',
-          letterSpacing: '0.1em',
-          color: 'var(--text-secondary)',
-        }}
-      >
-        Agents
-      </div>
-
-      {AGENTS.map(a => {
-        const status = agentStatus(a.key, isProcessing, lastAgent)
-        const isActive = status === 'active' || status === 'querying'
-        const isDone = status === 'completed'
-
-        const iconBg = isActive
-          ? `${a.color}1F`
-          : isDone
-            ? 'rgba(16,185,129,0.12)'
-            : SIDEBAR.iconBg
-        const iconColor = isActive ? a.color : isDone ? '#10B981' : 'var(--text-muted)'
-        const dotColor = isActive ? a.color : isDone ? '#10B981' : 'rgba(26,26,46,0.20)'
-
-        return (
-          <div
-            key={a.key}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '8px 8px',
-              borderRadius: 'var(--radius-sm)',
-              background: isActive ? SIDEBAR.activeBg : 'transparent',
-              transition: 'background 200ms ease',
-            }}
-          >
-            <div
-              style={{
-                width: 30,
-                height: 30,
-                borderRadius: 8,
-                background: iconBg,
-                border: `1px solid ${SIDEBAR.iconBorder}`,
-                color: iconColor,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                transition: 'background 200ms ease, color 200ms ease',
-              }}
-            >
-              {a.icon}
-            </div>
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  letterSpacing: '0.06em',
-                  color: 'var(--text-primary)',
-                }}
-              >
-                {a.label}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
-                <span
-                  className={isActive ? 'agent-pulse' : ''}
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: '50%',
-                    background: dotColor,
-                    display: 'inline-block',
-                  }}
-                />
-                <span
-                  style={{
-                    fontSize: 10,
-                    color: 'var(--text-secondary)',
-                    fontWeight: 500,
-                  }}
-                >
-                  {statusLabel(status)}
-                </span>
-              </div>
-            </div>
-          </div>
-        )
-      })}
-    </div>
-  )
 }
 
 function relativeTime(iso: string): string {
@@ -349,8 +170,6 @@ export function Sidebar({
   isOpen,
   onClose,
   isMobile,
-  isProcessing,
-  lastAgent,
 }: {
   currentId?: string
   onSelect: (id: string) => void
@@ -358,8 +177,6 @@ export function Sidebar({
   isOpen: boolean
   onClose: () => void
   isMobile: boolean
-  isProcessing: boolean
-  lastAgent?: Message['agent_used']
 }) {
   const [sessions, setSessions] = useState<Session[]>([])
 
@@ -529,7 +346,6 @@ export function Sidebar({
           )}
         </div>
 
-        <AgentStatusPanel isProcessing={isProcessing} lastAgent={lastAgent} />
       </aside>
     </>
   )
