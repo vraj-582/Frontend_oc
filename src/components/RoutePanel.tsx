@@ -229,7 +229,9 @@ function FlowView({ run }: { run: RouteRun }) {
               borderRadius: 11, background: '#fff',
               border: `1.5px solid ${active ? m.color : done ? '#9be4c9' : '#E7E4F0'}`,
               boxShadow: active ? `0 6px 18px ${m.color}33` : '0 1px 3px rgba(36,24,80,.05)',
-              opacity: dim ? 0.38 : 1, transition: 'all .35s',
+              opacity: dim ? 0.2 : 1,
+              filter: dim ? 'grayscale(1)' : 'none',
+              transition: 'all .35s',
             }}>
               <span style={{ width: 26, height: 26, borderRadius: 8, display: 'grid', placeItems: 'center',
                 flexShrink: 0, color: '#fff',

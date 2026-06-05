@@ -140,11 +140,22 @@ export function useStreamChat() {
           const sid = d.session_id as string
           if (sid) setSessionId(sid)
 
+          const agentUsed = d.agent_used as Message['agent_used']
+
+          // Derive route from agent_used as a fallback for the race condition
+          // where the 'route' SSE event hasn't been processed yet when 'response' fires
+          // (common for fast greetings that complete in < 200ms)
+          const routeFromAgent: RouteName = (
+            agentUsed === 'knowledge' ? 'INTERNAL' :
+            agentUsed === 'web'       ? 'WEB'      :
+            agentUsed === 'both'      ? 'BOTH'     : 'NONE'
+          )
+
           const assistantMsg: Message = {
             id: d.message_id as string,
             role: 'assistant',
             content: d.response as string,
-            agent_used: d.agent_used as Message['agent_used'],
+            agent_used: agentUsed,
             created_at: new Date().toISOString(),
           }
           setMessages(prev => [...prev, assistantMsg])
@@ -152,6 +163,8 @@ export function useStreamChat() {
           setRun(prev => ({
             ...prev,
             status: 'done',
+            // Use already-set route if available, otherwise derive from agent_used
+            route: prev.route ?? routeFromAgent,
             elapsed: performance.now() - t0,
             steps: prev.steps.map(s =>
               s.status === 'active' ? { ...s, status: 'done' } : s
