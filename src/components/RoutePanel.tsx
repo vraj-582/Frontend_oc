@@ -106,16 +106,16 @@ function RouteBadge({ route }: { route: RouteName | null }) {
 
 // ── Flow graph view ─────────────────────────────────────────
 const GRAPH_NODES: Record<string, { x: number; y: number; w: number; kind: string; label: string }> = {
-  start:     { x: 104, y: 6,   w: 92,  kind: 'start',        label: 'Start'     },
-  manager:   { x: 92,  y: 78,  w: 116, kind: 'manager',      label: 'Manager'   },
-  router:    { x: 100, y: 150, w: 100, kind: 'route',        label: 'Ro...'     },
-  knowledge: { x: 8,   y: 232, w: 110, kind: 'knowledge',    label: 'Knowle...' },
-  web:       { x: 182, y: 232, w: 92,  kind: 'web',          label: 'Web'       },
-  synthesis: { x: 92,  y: 314, w: 116, kind: 'synthesis',    label: 'Synthesis' },
-  response:  { x: 100, y: 392, w: 100, kind: 'respond',      label: 'Resp...'   },
+  start:     { x: 109, y: 6,   w: 92,  kind: 'start',     label: 'Start'     },
+  manager:   { x: 97,  y: 78,  w: 116, kind: 'manager',   label: 'Manager'   },
+  router:    { x: 97,  y: 150, w: 116, kind: 'route',     label: 'Router'    },
+  knowledge: { x: 4,   y: 232, w: 118, kind: 'knowledge', label: 'Knowledge' },
+  web:       { x: 188, y: 232, w: 96,  kind: 'web',       label: 'Web'       },
+  synthesis: { x: 97,  y: 314, w: 116, kind: 'synthesis', label: 'Synthesis' },
+  response:  { x: 97,  y: 392, w: 116, kind: 'respond',   label: 'Response'  },
 }
 const NODE_H = 44
-const CANVAS_W = 300
+const CANVAS_W = 310
 const CANVAS_H = 446
 
 const TAKEN: Record<string, string[]> = {
@@ -237,9 +237,9 @@ function FlowView({ run }: { run: RouteRun }) {
                 {done && key !== 'router' ? <IconCheck size={15} /> : <Icon size={14} />}
               </span>
               <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ fontSize: 12.5, fontWeight: 700,
+                <div style={{ fontSize: 11.5, fontWeight: 700,
                   color: dim ? '#928FAA' : '#211D38',
-                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{n.label}</div>
+                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'clip' }}>{n.label}</div>
               </div>
               {active && (
                 <svg width={13} height={13} viewBox="0 0 24 24" fill="none"
