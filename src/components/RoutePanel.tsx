@@ -140,15 +140,17 @@ function FlowView({ run }: { run: RouteRun }) {
   const taken = new Set(route ? TAKEN[route] : ['start', 'manager', 'router'])
 
   const nodeStatus = (key: string): 'pending' | 'active' | 'done' => {
+    // Start is always done once any query has been sent
     if (key === 'start') return run.status === 'idle' ? 'pending' : 'done'
+    // Response node is done when the whole run is done
+    if (key === 'response') return run.status === 'done' ? 'done' : run.status === 'running' ? 'active' : 'pending'
+    // Router is done as soon as route is known
+    if (key === 'router') return route ? 'done' : run.steps.find(s => s.name === 'manager')?.status === 'done' ? 'done' : 'pending'
     const n = GRAPH_NODES[key]
     if (!n) return 'pending'
-    const kind = n.kind === 'route' ? 'route' : n.kind
-    const step = run.steps.find(s => s.name === kind || (key === 'router' && s.name === 'manager'))
-    if (key === 'router') {
-      // router is done when route is known
-      return route ? 'done' : run.steps.find(s => s.name === 'manager')?.status === 'done' ? 'done' : 'pending'
-    }
+    const step = run.steps.find(s => s.name === n.kind)
+    // If run is done and node is on the taken path, mark it done even if no explicit step event
+    if (!step && run.status === 'done' && taken.has(key)) return 'done'
     return step ? (step.status as 'pending' | 'active' | 'done') : 'pending'
   }
 
@@ -372,7 +374,7 @@ function EventLog({ run }: { run: RouteRun }) {
         <IconTerminal size={14} />
         <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,.82)', letterSpacing: '.05em' }}>EVENT LOG</span>
       </div>
-      <div ref={ref} style={{ maxHeight: 160, overflowY: 'auto', padding: '10px 12px',
+      <div ref={ref} style={{ maxHeight: 220, overflowY: 'auto', padding: '10px 12px',
         fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, lineHeight: 1.7, color: 'rgba(255,255,255,.86)' }}>
         {run.log.length === 0 && <span style={{ color: 'rgba(255,255,255,.32)' }}>{'// awaiting query...'}</span>}
         {run.log.map((l, i) => (
@@ -463,7 +465,7 @@ export function RoutePanel({ run, open, onClose }: {
   return (
     <aside style={{
       width: 380, flexShrink: 0, background: '#FAFAFE', borderLeft: '1px solid #ECEAF5',
-      display: 'flex', flexDirection: 'column', height: '100vh',
+      display: 'flex', flexDirection: 'column', height: '100%',
     }}>
       {/* Header */}
       <div style={{ padding: '16px 18px 12px', borderBottom: '1px solid #ECEAF5' }}>
@@ -520,8 +522,8 @@ export function RoutePanel({ run, open, onClose }: {
         </div>
       )}
 
-      {/* Body */}
-      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+      {/* Body — scrollable so Flow canvas and Console log never clip */}
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden' }}>
         {idle ? <IdleState /> : <PanelBody run={run} />}
       </div>
     </aside>
