@@ -27,8 +27,8 @@ const SUGGESTIONS: Suggestion[] = [
   },
   {
     title: 'Summarize market trends',
-    subtitle: 'Try: What are the latest AI trends in 2025?',
-    query: 'What are the latest AI trends in 2025?',
+    subtitle: 'Try: What are the latest AI trends in 2026?',
+    query: 'What are the latest AI trends in 2026?',
     color: 'mid',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

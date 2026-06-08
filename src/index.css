@@ -31,10 +31,19 @@
 }
 
 html,
-body,
+body {
+  height: 100%;
+  width: 100%;
+}
+
+/* Make #root a flex column so children can use flex:1 reliably.
+   This fixes Chrome's height-100% cascade bug where the InputBar
+   gets pushed below the clipped viewport in flex column layouts. */
 #root {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 body {
