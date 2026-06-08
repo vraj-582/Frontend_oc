@@ -56,6 +56,12 @@ function colorFor(c: Suggestion['color']) {
   return c === 'start' ? 'var(--grad-start)' : c === 'mid' ? 'var(--grad-mid)' : 'var(--grad-end)'
 }
 
+function iconBgFor(c: Suggestion['color']) {
+  return c === 'start' ? 'rgba(168,86,247,0.10)'
+       : c === 'mid'   ? 'rgba(106,90,205,0.10)'
+       :                 'rgba(0,161,224,0.10)'
+}
+
 function SuggestionCard({
   suggestion,
   delay,
@@ -76,9 +82,9 @@ function SuggestionCard({
       onMouseLeave={() => setHovered(false)}
       className="fade-in-up"
       style={{
-        flex: '1 1 220px',
-        maxWidth: 260,
-        padding: '20px 18px',
+        flex: '1 1 200px',
+        maxWidth: 300,
+        padding: '12px 14px',
         background: hovered
           ? 'linear-gradient(135deg, var(--grad-start), var(--grad-mid), var(--grad-end)) top/100% 3px no-repeat, var(--bg)'
           : 'var(--bg)',
@@ -90,8 +96,9 @@ function SuggestionCard({
         textAlign: 'left',
         fontFamily: 'inherit',
         display: 'flex',
-        flexDirection: 'column',
-        gap: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
         transition: 'box-shadow 200ms ease, border-color 200ms ease, transform 200ms ease, background 200ms ease',
         boxShadow: hovered ? 'var(--shadow-md)' : 'none',
         transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
@@ -101,22 +108,52 @@ function SuggestionCard({
         overflow: 'hidden',
       }}
     >
-      <div style={{ color: colorFor(suggestion.color), marginBottom: 2 }}>
-        {suggestion.icon}
-      </div>
-      <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
-        {suggestion.title}
-      </span>
-      <span
+      {/* Coloured icon badge */}
+      <div
         style={{
-          fontSize: 12,
-          fontWeight: 400,
-          color: 'var(--text-secondary)',
-          lineHeight: 1.4,
+          flexShrink: 0,
+          width: 36,
+          height: 36,
+          borderRadius: 10,
+          background: iconBgFor(suggestion.color),
+          color: colorFor(suggestion.color),
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
-        {suggestion.subtitle}
-      </span>
+        {suggestion.icon}
+      </div>
+
+      {/* Text */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+        <span
+          style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: 'var(--text-primary)',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {suggestion.title}
+        </span>
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 400,
+            color: 'var(--text-secondary)',
+            lineHeight: 1.4,
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical' as const,
+            overflow: 'hidden',
+          }}
+        >
+          {suggestion.subtitle}
+        </span>
+      </div>
     </button>
   )
 }
@@ -132,19 +169,21 @@ function WelcomeScreen({
     <div
       style={{
         flex: 1,
+        minHeight: 0,          /* prevents Chrome flex-child expansion bug */
+        overflowY: 'auto',     /* scroll if viewport is very short */
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '40px 24px 20px',
-        gap: 14,
+        padding: '16px 24px 12px',
+        gap: 10,
       }}
     >
       <h1
         className="gradient-text fade-in-up"
         style={{
           fontWeight: 700,
-          fontSize: 48,
+          fontSize: 40,
           letterSpacing: '-0.03em',
           margin: 0,
           lineHeight: 1.1,
@@ -157,7 +196,7 @@ function WelcomeScreen({
         className="fade-in-up"
         style={{
           fontWeight: 300,
-          fontSize: 18,
+          fontSize: 16,
           color: 'var(--text-secondary)',
           margin: 0,
           animationDelay: '80ms',
@@ -170,11 +209,11 @@ function WelcomeScreen({
       <div
         className="fade-in-up"
         style={{
-          width: 80,
+          width: 70,
           height: 2,
           background: 'var(--gradient)',
           borderRadius: 1,
-          margin: '4px 0 12px',
+          margin: '2px 0 6px',
           animationDelay: '140ms',
           animationFillMode: 'both',
         }}
@@ -183,10 +222,11 @@ function WelcomeScreen({
       <div
         style={{
           display: 'flex',
-          gap: 16,
+          gap: 12,
           flexWrap: 'wrap',
           justifyContent: 'center',
-          maxWidth: 840,
+          maxWidth: 900,
+          width: '100%',
         }}
       >
         {SUGGESTIONS.map((s, i) => (
