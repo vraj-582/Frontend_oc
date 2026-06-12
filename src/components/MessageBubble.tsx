@@ -16,7 +16,7 @@ const markdownComponents: Components = {
   ),
 }
 
-type AgentKey = 'knowledge' | 'web' | 'both' | 'none'
+type AgentKey = 'knowledge' | 'web' | 'both' | 'none' | 'document'
 
 const agentConfig: Record<AgentKey, { label: string; color: string; bg: string; border: string; icon: React.ReactNode }> = {
   knowledge: {
@@ -65,6 +65,20 @@ const agentConfig: Record<AgentKey, { label: string; color: string; bg: string; 
         <circle cx="12" cy="12" r="10" />
         <path d="M9 9a3 3 0 015.83 1c0 2-3 3-3 3" />
         <line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+    ),
+  },
+  document: {
+    label: 'Document Reader',
+    color: '#00A1E0',
+    bg: 'rgba(0,161,224,0.06)',
+    border: 'rgba(0,161,224,0.18)',
+    icon: (
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+        <line x1="16" y1="17" x2="8" y2="17" />
       </svg>
     ),
   },

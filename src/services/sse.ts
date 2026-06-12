@@ -11,6 +11,7 @@ export async function streamChat(
   sessionId: string | undefined,
   signal: AbortSignal,
   onEvent: (eventType: string, data: Record<string, unknown>) => void,
+  mode: 'research' | 'document' = 'research',
 ): Promise<void> {
   const token = localStorage.getItem('token')
   const res = await fetch(`${BASE_URL}/api/chat/stream`, {
@@ -19,7 +20,7 @@ export async function streamChat(
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    body: JSON.stringify({ message, session_id: sessionId }),
+    body: JSON.stringify({ message, session_id: sessionId, mode }),
     signal,
   })
 

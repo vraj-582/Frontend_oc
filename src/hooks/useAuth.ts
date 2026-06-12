@@ -27,10 +27,10 @@ export function useAuth() {
     }
   }, [])
 
-  const register = useCallback(async (name: string, email: string, password: string) => {
+  const register = useCallback(async (name: string, email: string, password: string, role = 'employee') => {
     setIsLoading(true)
     try {
-      const res = await apiRegister(name, email, password)
+      const res = await apiRegister(name, email, password, role)
       localStorage.setItem('token', res.access_token)
       localStorage.setItem('user', JSON.stringify(res.user))
       setUser(res.user)

@@ -9,13 +9,14 @@ export function LoginPage({
   isLoading,
 }: {
   onLogin: (email: string, password: string) => Promise<void>
-  onRegister: (name: string, email: string, password: string) => Promise<void>
+  onRegister: (name: string, email: string, password: string, role: string) => Promise<void>
   isLoading: boolean
 }) {
   const [tab, setTab] = useState<'signin' | 'register'>('signin')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [role, setRole] = useState('employee')
   const [showPw, setShowPw] = useState(false)
   const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string }>({})
 
@@ -73,7 +74,7 @@ export function LoginPage({
           if (firstErr) toast.error(firstErr)
           return
         }
-        await onRegister(name.trim(), email.trim(), password)
+        await onRegister(name.trim(), email.trim(), password, role)
       } else {
         const errs = validateSignin(email, password)
         setErrors(errs)
@@ -347,6 +348,29 @@ export function LoginPage({
               </button>
               {errorText(errors.password)}
             </div>
+
+            {tab === 'register' && (
+              <div>
+                <select
+                  value={role}
+                  onChange={e => setRole(e.target.value)}
+                  style={{
+                    ...inputStyle,
+                    cursor: 'pointer',
+                    appearance: 'none',
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239898B8' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 14px center',
+                    paddingRight: 36,
+                  }}
+                >
+                  <option value="employee">Employee</option>
+                  <option value="manager">Manager</option>
+                  <option value="hr">HR Staff</option>
+                  <option value="admin">Administrator</option>
+                </select>
+              </div>
+            )}
 
             <button
               type="submit"

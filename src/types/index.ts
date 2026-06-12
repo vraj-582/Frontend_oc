@@ -2,6 +2,7 @@ export interface User {
   id: string
   name: string
   email: string
+  role: string
 }
 
 export interface AuthResponse {
@@ -14,9 +15,11 @@ export interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
-  agent_used?: 'knowledge' | 'web' | 'both' | 'none'
+  agent_used?: 'knowledge' | 'web' | 'both' | 'none' | 'document'
   created_at: string
 }
+
+export type ChatMode = 'research' | 'document'
 
 export interface Session {
   id: string
@@ -35,9 +38,9 @@ export interface ChatResponse {
 
 // ── SSE Route Panel types ────────────────────────────────────
 
-export type StepName = 'manager' | 'knowledge' | 'web' | 'synthesis'
+export type StepName = 'manager' | 'knowledge' | 'web' | 'synthesis' | 'document-reader'
 export type StepStatus = 'pending' | 'active' | 'done' | 'error'
-export type RouteName = 'INTERNAL' | 'WEB' | 'BOTH' | 'NONE'
+export type RouteName = 'INTERNAL' | 'WEB' | 'BOTH' | 'NONE' | 'DOCUMENT'
 
 export interface RouteStep {
   name: StepName

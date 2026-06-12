@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from 'react'
 import { getSession } from '../services/api'
 import { streamChat } from '../services/sse'
-import type { Message, RouteRun, RouteStep, LogEntry, StepName, RouteName } from '../types'
+import type { Message, RouteRun, RouteStep, LogEntry, StepName, RouteName, ChatMode } from '../types'
 import toast from 'react-hot-toast'
 
 const IDLE_RUN: RouteRun = {
@@ -45,7 +45,7 @@ export function useStreamChat() {
     }))
   }, [])
 
-  const send = useCallback(async (text: string) => {
+  const send = useCallback(async (text: string, mode: ChatMode = 'research') => {
     const userMsg: Message = {
       id: Date.now().toString(),
       role: 'user',
@@ -146,9 +146,10 @@ export function useStreamChat() {
           // where the 'route' SSE event hasn't been processed yet when 'response' fires
           // (common for fast greetings that complete in < 200ms)
           const routeFromAgent: RouteName = (
-            agentUsed === 'knowledge' ? 'INTERNAL' :
-            agentUsed === 'web'       ? 'WEB'      :
-            agentUsed === 'both'      ? 'BOTH'     : 'NONE'
+            agentUsed === 'knowledge' ? 'INTERNAL'  :
+            agentUsed === 'web'       ? 'WEB'       :
+            agentUsed === 'both'      ? 'BOTH'      :
+            agentUsed === 'document'  ? 'DOCUMENT'  : 'NONE'
           )
 
           const assistantMsg: Message = {
@@ -199,7 +200,7 @@ export function useStreamChat() {
             }],
           }))
         }
-      })
+      }, mode)
     } catch (e: unknown) {
       const name = (e as { name?: string })?.name
       if (name === 'AbortError') return

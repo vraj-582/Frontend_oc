@@ -1,13 +1,38 @@
 import { useState } from 'react'
+import type { ChatMode } from '../types'
+
+function IconSearch({ size = 13 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8" />
+      <path d="M21 21l-4.35-4.35" />
+    </svg>
+  )
+}
+
+function IconFile({ size = 13 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+    </svg>
+  )
+}
 
 export function InputBar({
   onSend,
   onStop,
   disabled,
+  mode = 'research',
+  onModeChange,
 }: {
   onSend: (text: string) => void
   onStop?: () => void
   disabled: boolean
+  mode?: ChatMode
+  onModeChange?: (mode: ChatMode) => void
 }) {
   const [value, setValue] = useState('')
   const [focused, setFocused] = useState(false)
@@ -29,15 +54,65 @@ export function InputBar({
 
   const canSend = value.trim().length > 0 && !disabled
 
+  const MODES: { id: ChatMode; label: string; Icon: (p: { size?: number }) => JSX.Element }[] = [
+    { id: 'research',  label: 'Research',  Icon: IconSearch },
+    { id: 'document',  label: 'Documents', Icon: IconFile   },
+  ]
+
   return (
     <div
       style={{
-        padding: '12px 20px 16px',
+        padding: '10px 20px 16px',
         background: 'var(--bg)',
         borderTop: '1px solid var(--border)',
         flexShrink: 0,
       }}
     >
+      {/* ── Mode toggle ── */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
+        <div
+          style={{
+            display: 'inline-flex',
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 999,
+            padding: 3,
+            gap: 2,
+          }}
+        >
+          {MODES.map(({ id, label, Icon }) => {
+            const active = mode === id
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => onModeChange?.(id)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '5px 14px',
+                  borderRadius: 999,
+                  border: 'none',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  fontFamily: 'inherit',
+                  background: active ? 'var(--gradient)' : 'transparent',
+                  color: active ? '#fff' : 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  transition: 'background 200ms ease, color 200ms ease',
+                  letterSpacing: '0.01em',
+                }}
+              >
+                <Icon size={13} />
+                {label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ── Input pill ── */}
       <div
         style={{
           display: 'flex',
@@ -63,7 +138,13 @@ export function InputBar({
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           disabled={disabled}
-          placeholder={disabled ? 'Thinking…' : 'Ask Orchestrix anything…'}
+          placeholder={
+            disabled
+              ? 'Thinking…'
+              : mode === 'document'
+              ? 'Ask about your documents…'
+              : 'Ask Orchestrix anything…'
+          }
           style={{
             flex: 1,
             border: 'none',
@@ -78,7 +159,7 @@ export function InputBar({
           }}
         />
 
-        {/* ── Stop button — visible while a query is running ── */}
+        {/* ── Stop button ── */}
         {disabled && onStop ? (
           <button
             onClick={onStop}
@@ -89,9 +170,7 @@ export function InputBar({
               width: 38,
               height: 38,
               borderRadius: '50%',
-              background: stopHovered
-                ? '#DC2626'
-                : 'rgba(220, 38, 38, 0.10)',
+              background: stopHovered ? '#DC2626' : 'rgba(220, 38, 38, 0.10)',
               border: '1.5px solid rgba(220,38,38,0.30)',
               display: 'flex',
               alignItems: 'center',
@@ -103,7 +182,6 @@ export function InputBar({
               transform: stopHovered ? 'scale(1.07)' : 'scale(1)',
             }}
           >
-            {/* Square stop icon */}
             <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
               <rect x="1" y="1" width="10" height="10" rx="2" />
             </svg>

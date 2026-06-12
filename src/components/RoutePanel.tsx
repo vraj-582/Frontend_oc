@@ -3,17 +3,19 @@ import type { RouteRun, RouteName } from '../types'
 
 // ── Route metadata ──────────────────────────────────────────
 const ROUTE_META: Record<string, { tag: string; desc: string; color: string; bg: string }> = {
-  INTERNAL: { tag: 'ROUTE: INTERNAL', desc: 'Internal knowledge only', color: '#5566F2', bg: '#E9ECFE' },
-  WEB:     { tag: 'ROUTE: WEB',      desc: 'Live web search only',    color: '#0E96AE', bg: '#DEF3F6' },
-  BOTH:    { tag: 'ROUTE: BOTH',     desc: 'Knowledge + web, merged', color: '#7C5CFF', bg: '#EEEAFF' },
-  NONE:    { tag: 'ROUTE: NONE',     desc: 'Direct reply, no agents', color: '#7E7A95', bg: '#EFEEF4' },
+  INTERNAL: { tag: 'ROUTE: INTERNAL', desc: 'Internal knowledge only',   color: '#5566F2', bg: '#E9ECFE' },
+  WEB:      { tag: 'ROUTE: WEB',      desc: 'Live web search only',      color: '#0E96AE', bg: '#DEF3F6' },
+  BOTH:     { tag: 'ROUTE: BOTH',     desc: 'Knowledge + web, merged',   color: '#7C5CFF', bg: '#EEEAFF' },
+  NONE:     { tag: 'ROUTE: NONE',     desc: 'Direct reply, no agents',   color: '#7E7A95', bg: '#EFEEF4' },
+  DOCUMENT: { tag: 'ROUTE: DOCUMENT', desc: 'Cloud document reader',     color: '#00A1E0', bg: '#E0F5FF' },
 }
 
 const STEP_META: Record<string, { label: string; color: string; soft: string }> = {
-  manager:   { label: 'Manager agent',   color: '#7C5CFF', soft: '#EEEAFF' },
-  knowledge: { label: 'Knowledge agent', color: '#5566F2', soft: '#E9ECFE' },
-  web:       { label: 'Web agent',       color: '#0EA5BE', soft: '#DFF4F7' },
-  synthesis: { label: 'Synthesis',       color: '#8B5CF6', soft: '#F0EAFE' },
+  manager:           { label: 'Manager agent',   color: '#7C5CFF', soft: '#EEEAFF' },
+  knowledge:         { label: 'Knowledge agent', color: '#5566F2', soft: '#E9ECFE' },
+  web:               { label: 'Web agent',       color: '#0EA5BE', soft: '#DFF4F7' },
+  synthesis:         { label: 'Synthesis',       color: '#8B5CF6', soft: '#F0EAFE' },
+  'document-reader': { label: 'Document Reader', color: '#00A1E0', soft: '#E0F5FF' },
 }
 
 function fmtTime(ms: number): string {
@@ -79,12 +81,23 @@ function IconX({ size = 16 }: { size?: number }) {
     </svg>
   )
 }
+function IconFile({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+    </svg>
+  )
+}
 
 const STEP_ICONS: Record<string, (p: { size?: number }) => JSX.Element> = {
-  manager: IconBranch,
-  knowledge: IconDatabase,
-  web: IconGlobe,
-  synthesis: IconLayers,
+  manager:           IconBranch,
+  knowledge:         IconDatabase,
+  web:               IconGlobe,
+  synthesis:         IconLayers,
+  'document-reader': IconFile,
 }
 
 // ── Route badge ─────────────────────────────────────────────
@@ -106,33 +119,36 @@ function RouteBadge({ route }: { route: RouteName | null }) {
 
 // ── Flow graph view ─────────────────────────────────────────
 const GRAPH_NODES: Record<string, { x: number; y: number; w: number; kind: string; label: string }> = {
-  start:     { x: 109, y: 6,   w: 92,  kind: 'start',     label: 'Start'     },
-  manager:   { x: 97,  y: 78,  w: 116, kind: 'manager',   label: 'Manager'   },
-  router:    { x: 97,  y: 150, w: 116, kind: 'route',     label: 'Router'    },
-  knowledge: { x: 4,   y: 232, w: 118, kind: 'knowledge', label: 'Knowledge' },
-  web:       { x: 188, y: 232, w: 96,  kind: 'web',       label: 'Web'       },
-  synthesis: { x: 97,  y: 314, w: 116, kind: 'synthesis', label: 'Synthesis' },
-  response:  { x: 97,  y: 392, w: 116, kind: 'respond',   label: 'Response'  },
+  start:             { x: 109, y: 6,   w: 92,  kind: 'start',           label: 'Start'       },
+  manager:           { x: 97,  y: 78,  w: 116, kind: 'manager',         label: 'Manager'     },
+  router:            { x: 97,  y: 150, w: 116, kind: 'route',           label: 'Router'      },
+  knowledge:         { x: 4,   y: 232, w: 118, kind: 'knowledge',       label: 'Knowledge'   },
+  web:               { x: 188, y: 232, w: 96,  kind: 'web',             label: 'Web'         },
+  'document-reader': { x: 97,  y: 232, w: 116, kind: 'document-reader', label: 'Doc Reader'  },
+  synthesis:         { x: 97,  y: 314, w: 116, kind: 'synthesis',       label: 'Synthesis'   },
+  response:          { x: 97,  y: 392, w: 116, kind: 'respond',         label: 'Response'    },
 }
 const NODE_H = 44
 const CANVAS_W = 310
 const CANVAS_H = 446
 
 const TAKEN: Record<string, string[]> = {
-  INTERNAL: ['start', 'manager', 'router', 'knowledge', 'synthesis', 'response'],
-  WEB:      ['start', 'manager', 'router', 'web',       'synthesis', 'response'],
-  BOTH:     ['start', 'manager', 'router', 'knowledge', 'web', 'synthesis', 'response'],
+  INTERNAL: ['start', 'manager', 'router', 'knowledge',         'synthesis', 'response'],
+  WEB:      ['start', 'manager', 'router', 'web',               'synthesis', 'response'],
+  BOTH:     ['start', 'manager', 'router', 'knowledge', 'web',  'synthesis', 'response'],
   NONE:     ['start', 'manager', 'router', 'response'],
+  DOCUMENT: ['start', 'manager', 'router', 'document-reader',   'response'],
 }
 
 const NODE_ICONS: Record<string, (p: { size?: number }) => JSX.Element> = {
-  start:     IconRoute,
-  manager:   IconBranch,
-  route:     IconRoute,
-  knowledge: IconDatabase,
-  web:       IconGlobe,
-  synthesis: IconLayers,
-  respond:   IconTerminal,
+  start:             IconRoute,
+  manager:           IconBranch,
+  route:             IconRoute,
+  knowledge:         IconDatabase,
+  web:               IconGlobe,
+  'document-reader': IconFile,
+  synthesis:         IconLayers,
+  respond:           IconTerminal,
 }
 
 function FlowView({ run }: { run: RouteRun }) {
@@ -394,9 +410,10 @@ function EventLog({ run }: { run: RouteRun }) {
 function IdleState() {
   const routes = [
     { k: 'INTERNAL', agent: 'knowledge-agent' },
-    { k: 'WEB', agent: 'web-agent' },
-    { k: 'BOTH', agent: 'knowledge + web' },
-    { k: 'NONE', agent: 'direct reply' },
+    { k: 'WEB',      agent: 'web-agent'        },
+    { k: 'BOTH',     agent: 'knowledge + web'  },
+    { k: 'NONE',     agent: 'direct reply'     },
+    { k: 'DOCUMENT', agent: 'document-reader'  },
   ]
   return (
     <div style={{ padding: '26px 20px', display: 'flex', flexDirection: 'column', height: '100%' }}>

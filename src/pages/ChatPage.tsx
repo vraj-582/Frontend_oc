@@ -5,7 +5,7 @@ import { ChatWindow } from '../components/ChatWindow'
 import { InputBar } from '../components/InputBar'
 import { RoutePanel } from '../components/RoutePanel'
 import { useStreamChat } from '../hooks/useStreamChat'
-import type { User } from '../types'
+import type { User, ChatMode } from '../types'
 
 function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(() =>
@@ -250,6 +250,7 @@ function Topbar({
 
 export function ChatPage({ user, onLogout }: { user: User; onLogout: () => void }) {
   const { messages, sessionId, isLoading, run, send, stop, loadSession, clearChat } = useStreamChat()
+  const [chatMode, setChatMode] = useState<ChatMode>('research')
   const [routePanelOpen, setRoutePanelOpen] = useState(true)
   const isMobile = useMediaQuery('(max-width: 767px)')
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -273,9 +274,9 @@ export function ChatPage({ user, onLogout }: { user: User; onLogout: () => void 
 
   const handleSend = useCallback(
     (text: string) => {
-      send(text)
+      send(text, chatMode)
     },
-    [send]
+    [send, chatMode]
   )
 
   const handleNewChat = useCallback(() => {
@@ -330,7 +331,7 @@ export function ChatPage({ user, onLogout }: { user: User; onLogout: () => void 
           }}
         >
           <ChatWindow messages={messages} isLoading={isLoading} onSend={handleSend} />
-          <InputBar onSend={handleSend} onStop={stop} disabled={isLoading} />
+          <InputBar onSend={handleSend} onStop={stop} disabled={isLoading} mode={chatMode} onModeChange={setChatMode} />
         </main>
 
         {!isMobile && (
