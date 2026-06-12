@@ -179,6 +179,9 @@ function FlowView({ run }: { run: RouteRun }) {
   ]
   if (route === 'NONE') {
     edges.push(['router', 'response', 'skip'])
+  } else if (route === 'DOCUMENT') {
+    edges.push(['router', 'document-reader'])
+    edges.push(['document-reader', 'response'])
   } else {
     if (!route || taken.has('knowledge')) edges.push(['router', 'knowledge'])
     if (!route || taken.has('web'))       edges.push(['router', 'web'])
@@ -238,6 +241,9 @@ function FlowView({ run }: { run: RouteRun }) {
           const active = st === 'active'
           const done = st === 'done'
           const Icon = NODE_ICONS[n.kind] || IconBranch
+          const isResearchOnlyNode = ['knowledge', 'web', 'synthesis'].includes(key)
+          const hidden = route === 'DOCUMENT' ? isResearchOnlyNode : key === 'document-reader'
+          if (hidden) return null
           return (
             <div key={key} style={{
               position: 'absolute', left: n.x, top: n.y, width: n.w, height: NODE_H,
