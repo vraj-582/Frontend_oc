@@ -23,11 +23,6 @@ function folderOf(path: string): string | null {
   return idx !== -1 ? path.slice(0, idx + 1) : null
 }
 
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
 
 const EXT_COLORS: Record<string, string> = {
   pdf: '#e74c3c',
