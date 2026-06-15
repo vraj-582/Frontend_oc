@@ -4,6 +4,7 @@ import { Sidebar } from '../components/Sidebar'
 import { ChatWindow } from '../components/ChatWindow'
 import { InputBar } from '../components/InputBar'
 import { RoutePanel } from '../components/RoutePanel'
+import { DocumentPanel } from '../components/DocumentPanel'
 import { useStreamChat } from '../hooks/useStreamChat'
 import type { User, ChatMode } from '../types'
 
@@ -252,6 +253,7 @@ export function ChatPage({ user, onLogout }: { user: User; onLogout: () => void 
   const { messages, sessionId, isLoading, run, send, stop, loadSession, clearChat } = useStreamChat()
   const [chatMode, setChatMode] = useState<ChatMode>('research')
   const [routePanelOpen, setRoutePanelOpen] = useState(true)
+  const [docPanelOpen, setDocPanelOpen] = useState(true)
   const isMobile = useMediaQuery('(max-width: 767px)')
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
@@ -271,6 +273,10 @@ export function ChatPage({ user, onLogout }: { user: User; onLogout: () => void 
       navigate(location.pathname, { replace: true, state: null })
     }
   }, [location, loadSession, navigate])
+
+  useEffect(() => {
+    if (chatMode === 'document') setDocPanelOpen(true)
+  }, [chatMode])
 
   const handleSend = useCallback(
     (text: string) => {
@@ -334,10 +340,32 @@ export function ChatPage({ user, onLogout }: { user: User; onLogout: () => void 
           <InputBar onSend={handleSend} onStop={stop} disabled={isLoading} mode={chatMode} onModeChange={setChatMode} />
         </main>
 
-        {!isMobile && (
+        {!isMobile && chatMode === 'document' && (
+          <DocumentPanel user={user} open={docPanelOpen} onClose={() => setDocPanelOpen(false)} />
+        )}
+        {!isMobile && chatMode === 'document' && !docPanelOpen && (
+          <button
+            onClick={() => setDocPanelOpen(true)}
+            title="Show document library"
+            style={{
+              position: 'fixed', right: 18, bottom: 90, zIndex: 20,
+              width: 48, height: 48, borderRadius: 14,
+              background: 'var(--gradient)', color: '#fff',
+              display: 'grid', placeItems: 'center',
+              boxShadow: '0 10px 26px rgba(108,71,240,.4)',
+              border: 'none', cursor: 'pointer',
+            }}
+          >
+            <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+          </button>
+        )}
+        {!isMobile && chatMode === 'research' && (
           <RoutePanel run={run} open={routePanelOpen} onClose={() => setRoutePanelOpen(false)} />
         )}
-        {!isMobile && !routePanelOpen && (
+        {!isMobile && chatMode === 'research' && !routePanelOpen && (
           <button
             onClick={() => setRoutePanelOpen(true)}
             title="Show agent route"

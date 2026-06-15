@@ -63,3 +63,28 @@ export const getSession = async (id: string): Promise<Session & { messages: Mess
 export const deleteSession = async (id: string): Promise<void> => {
   await api.delete(`/api/sessions/${id}`)
 }
+
+// ── Documents ────────────────────────────────────────────────────────
+
+export const listDocuments = async (): Promise<{ documents: string[] }> => {
+  const res = await api.get('/api/documents')
+  return res.data
+}
+
+export const uploadDocument = async (
+  file: File,
+  onProgress?: (pct: number) => void,
+): Promise<{ filename: string; size: number; folder: string }> => {
+  const form = new FormData()
+  form.append('file', file)
+  const res = await api.post('/api/documents/upload', form, {
+    onUploadProgress: (e) => {
+      if (onProgress && e.total) onProgress(Math.round((e.loaded / e.total) * 100))
+    },
+  })
+  return res.data
+}
+
+export const deleteDocument = async (filename: string): Promise<void> => {
+  await api.delete(`/api/documents/${filename}`)
+}
