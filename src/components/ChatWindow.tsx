@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { MessageBubble } from './MessageBubble'
 import { TypingIndicator } from './TypingIndicator'
-import type { Message } from '../types'
+import type { ChatMode, Message } from '../types'
 
 type Suggestion = {
   title: string
@@ -161,9 +161,11 @@ function SuggestionCard({
 function WelcomeScreen({
   onSend,
   isLoading,
+  mode,
 }: {
   onSend: (text: string) => void
   isLoading: boolean
+  mode: ChatMode
 }) {
   return (
     <div
@@ -219,26 +221,28 @@ function WelcomeScreen({
         }}
       />
 
-      <div
-        style={{
-          display: 'flex',
-          gap: 12,
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-          maxWidth: 900,
-          width: '100%',
-        }}
-      >
-        {SUGGESTIONS.map((s, i) => (
-          <SuggestionCard
-            key={s.title}
-            suggestion={s}
-            delay={200 + i * 80}
-            disabled={isLoading}
-            onClick={() => onSend(s.query)}
-          />
-        ))}
-      </div>
+      {mode === 'research' && (
+        <div
+          style={{
+            display: 'flex',
+            gap: 12,
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            maxWidth: 900,
+            width: '100%',
+          }}
+        >
+          {SUGGESTIONS.map((s, i) => (
+            <SuggestionCard
+              key={s.title}
+              suggestion={s}
+              delay={200 + i * 80}
+              disabled={isLoading}
+              onClick={() => onSend(s.query)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -276,10 +280,12 @@ export function ChatWindow({
   messages,
   isLoading,
   onSend,
+  mode,
 }: {
   messages: Message[]
   isLoading: boolean
   onSend: (text: string) => void
+  mode: ChatMode
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const prevCount = useRef(0)
@@ -294,7 +300,7 @@ export function ChatWindow({
   }, [messages.length])
 
   if (messages.length === 0) {
-    return <WelcomeScreen onSend={onSend} isLoading={isLoading} />
+    return <WelcomeScreen onSend={onSend} isLoading={isLoading} mode={mode} />
   }
 
   const headerTitle =

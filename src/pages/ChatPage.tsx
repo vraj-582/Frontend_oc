@@ -336,7 +336,7 @@ export function ChatPage({ user, onLogout }: { user: User; onLogout: () => void 
             minWidth: 0,
           }}
         >
-          <ChatWindow messages={messages} isLoading={isLoading} onSend={handleSend} />
+          <ChatWindow messages={messages} isLoading={isLoading} onSend={handleSend} mode={chatMode} />
           <InputBar onSend={handleSend} onStop={stop} disabled={isLoading} mode={chatMode} onModeChange={setChatMode} />
         </main>
 
