@@ -86,7 +86,9 @@ export function InputBar({
               <button
                 key={id}
                 type="button"
-                onClick={() => onModeChange?.(id)}
+                disabled={disabled}
+                onClick={() => !disabled && onModeChange?.(id)}
+                title={disabled ? 'Wait for the current query to finish' : undefined}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -99,8 +101,9 @@ export function InputBar({
                   fontFamily: 'inherit',
                   background: active ? 'var(--gradient)' : 'transparent',
                   color: active ? '#fff' : 'var(--text-secondary)',
-                  cursor: 'pointer',
-                  transition: 'background 200ms ease, color 200ms ease',
+                  cursor: disabled ? 'not-allowed' : 'pointer',
+                  opacity: disabled && !active ? 0.4 : 1,
+                  transition: 'background 200ms ease, color 200ms ease, opacity 200ms ease',
                   letterSpacing: '0.01em',
                 }}
               >
