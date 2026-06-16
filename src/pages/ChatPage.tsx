@@ -341,7 +341,7 @@ export function ChatPage({ user, onLogout }: { user: User; onLogout: () => void 
         </main>
 
         {!isMobile && chatMode === 'document' && (
-          <DocumentPanel user={user} open={docPanelOpen} onClose={() => setDocPanelOpen(false)} />
+          <DocumentPanel user={user} run={run} open={docPanelOpen} onClose={() => setDocPanelOpen(false)} />
         )}
         {!isMobile && chatMode === 'document' && !docPanelOpen && (
           <button

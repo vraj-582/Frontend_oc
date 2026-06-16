@@ -474,10 +474,11 @@ const VIEWS: { id: PanelView; label: string; Icon: (p: { size?: number }) => JSX
   { id: 'console',  label: 'Console',  Icon: IconTerminal },
 ]
 
-export function RoutePanel({ run, open, onClose }: {
+export function RoutePanel({ run, open, onClose, embedded = false }: {
   run: RouteRun
   open: boolean
   onClose: () => void
+  embedded?: boolean
 }) {
   const [view, setView] = useState<PanelView>('timeline')
 
@@ -487,12 +488,55 @@ export function RoutePanel({ run, open, onClose }: {
   const idle = run.status === 'idle'
   const PanelBody = view === 'timeline' ? TimelineView : view === 'flow' ? FlowView : ConsoleView
 
+  const viewToggle = (
+    <div style={{ display: 'flex', gap: 4, padding: 4, borderRadius: 12, background: '#EEEBF7' }}>
+      {VIEWS.map(v => (
+        <button key={v.id} onClick={() => setView(v.id)} style={{
+          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+          height: 34, borderRadius: 9, fontSize: 12.5, fontWeight: 700, transition: 'all .15s',
+          background: view === v.id ? '#fff' : 'transparent',
+          color: view === v.id ? '#7C5CFF' : '#56516F',
+          boxShadow: view === v.id ? '0 2px 8px rgba(36,24,80,.10)' : 'none',
+          border: 'none', cursor: 'pointer',
+        }}>
+          <v.Icon size={15} /> {v.label}
+        </button>
+      ))}
+    </div>
+  )
+
+  const statusStrip = !idle && (
+    <div style={{ padding: '10px 18px', borderBottom: '1px solid #ECEAF5', display: 'flex', alignItems: 'center', gap: 10 }}>
+      <RouteBadge route={run.route} />
+      {m && <span style={{ fontSize: 12, color: '#56516F' }}>{m.desc}</span>}
+    </div>
+  )
+
+  const body = (
+    <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden' }}>
+      {idle ? <IdleState /> : <PanelBody run={run} />}
+    </div>
+  )
+
+  /* ── Embedded mode: no aside wrapper, no title row ── */
+  if (embedded) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden', background: '#FAFAFE' }}>
+        <div style={{ padding: '10px 14px', borderBottom: '1px solid #ECEAF5', flexShrink: 0 }}>
+          {viewToggle}
+        </div>
+        {statusStrip}
+        {body}
+      </div>
+    )
+  }
+
+  /* ── Standalone mode ── */
   return (
     <aside style={{
       width: 380, flexShrink: 0, background: '#FAFAFE', borderLeft: '1px solid #ECEAF5',
       display: 'flex', flexDirection: 'column', height: '100%',
     }}>
-      {/* Header */}
       <div style={{ padding: '16px 18px 12px', borderBottom: '1px solid #ECEAF5' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
           <span style={{ width: 30, height: 30, borderRadius: 9, background: 'var(--gradient)', color: '#fff',
@@ -521,36 +565,10 @@ export function RoutePanel({ run, open, onClose }: {
             <IconX size={17} />
           </button>
         </div>
-
-        {/* View toggle */}
-        <div style={{ display: 'flex', gap: 4, marginTop: 14, padding: 4, borderRadius: 12, background: '#EEEBF7' }}>
-          {VIEWS.map(v => (
-            <button key={v.id} onClick={() => setView(v.id)} style={{
-              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              height: 34, borderRadius: 9, fontSize: 12.5, fontWeight: 700, transition: 'all .15s',
-              background: view === v.id ? '#fff' : 'transparent',
-              color: view === v.id ? '#7C5CFF' : '#56516F',
-              boxShadow: view === v.id ? '0 2px 8px rgba(36,24,80,.10)' : 'none',
-              border: 'none', cursor: 'pointer',
-            }}>
-              <v.Icon size={15} /> {v.label}
-            </button>
-          ))}
-        </div>
+        <div style={{ marginTop: 14 }}>{viewToggle}</div>
       </div>
-
-      {/* Route status strip */}
-      {!idle && (
-        <div style={{ padding: '12px 18px', borderBottom: '1px solid #ECEAF5', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <RouteBadge route={run.route} />
-          {m && <span style={{ fontSize: 12, color: '#56516F' }}>{m.desc}</span>}
-        </div>
-      )}
-
-      {/* Body — scrollable so Flow canvas and Console log never clip */}
-      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden' }}>
-        {idle ? <IdleState /> : <PanelBody run={run} />}
-      </div>
+      {statusStrip}
+      {body}
     </aside>
   )
 }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { User } from '../types'
+import type { RouteRun, User } from '../types'
 import { listDocuments, uploadDocument, deleteDocument } from '../services/api'
+import { RoutePanel } from './RoutePanel'
 
 const ROLE_FOLDER: Record<string, string> = {
   employee: 'root folder',
@@ -79,13 +80,16 @@ function FolderBadge({ role }: { role: string }) {
 
 export function DocumentPanel({
   user,
+  run,
   open,
   onClose,
 }: {
   user: User
+  run: RouteRun
   open: boolean
   onClose: () => void
 }) {
+  const [panelView, setPanelView] = useState<'library' | 'flow'>('library')
   const [documents, setDocuments] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -162,53 +166,81 @@ export function DocumentPanel({
   return (
     <aside
       style={{
-        width: 300,
+        width: panelView === 'flow' ? 380 : 300,
         flexShrink: 0,
         display: 'flex',
         flexDirection: 'column',
         borderLeft: '1px solid var(--border)',
-        background: 'var(--bg)',
+        background: panelView === 'flow' ? '#FAFAFE' : 'var(--bg)',
         overflow: 'hidden',
+        transition: 'width 200ms ease',
       }}
     >
-      {/* Header */}
+      {/* Header — tab toggle + close */}
       <div
         style={{
-          padding: '14px 16px 12px',
+          padding: '10px 12px',
           borderBottom: '1px solid var(--border)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          gap: 8,
           flexShrink: 0,
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
-            Document Library
-          </span>
-          <FolderBadge role={user.role} />
+        {/* Tab toggle */}
+        <div style={{ display: 'flex', flex: 1, background: 'var(--surface)', borderRadius: 8, padding: 3, gap: 2 }}>
+          {(['library', 'flow'] as const).map(tab => (
+            <button
+              key={tab}
+              onClick={() => setPanelView(tab)}
+              style={{
+                flex: 1,
+                padding: '5px 0',
+                borderRadius: 6,
+                border: 'none',
+                fontSize: 11,
+                fontWeight: 700,
+                cursor: 'pointer',
+                background: panelView === tab ? 'var(--bg)' : 'transparent',
+                color: panelView === tab ? 'var(--accent, #7C5CFF)' : 'var(--text-muted)',
+                boxShadow: panelView === tab ? '0 1px 4px rgba(0,0,0,0.10)' : 'none',
+                transition: 'all 150ms ease',
+                textTransform: 'capitalize',
+              }}
+            >
+              {tab === 'library' ? '📁 Library' : '⚡ Flow'}
+            </button>
+          ))}
         </div>
+
+        {/* Close button */}
         <button
           onClick={onClose}
-          aria-label="Close document panel"
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-muted)',
-            cursor: 'pointer',
-            padding: 4,
-            borderRadius: 6,
-            display: 'flex',
-            alignItems: 'center',
-          }}
+          aria-label="Close panel"
+          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4, borderRadius: 6, display: 'flex', alignItems: 'center', flexShrink: 0 }}
           onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.background = 'var(--surface)' }}
           onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'transparent' }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
       </div>
+
+      {/* Folder badge — library only */}
+      {panelView === 'library' && (
+        <div style={{ padding: '8px 14px 4px', flexShrink: 0 }}>
+          <FolderBadge role={user.role} />
+        </div>
+      )}
+
+      {/* Flow view — embedded RoutePanel */}
+      {panelView === 'flow' && (
+        <RoutePanel run={run} open={true} onClose={() => setPanelView('library')} embedded />
+      )}
+
+      {/* Library view content */}
+      {panelView === 'library' && <>
 
       {/* Upload zone */}
       <div style={{ padding: '12px 14px', flexShrink: 0 }}>
@@ -468,6 +500,8 @@ export function DocumentPanel({
           </p>
         </div>
       )}
+
+      </>}
     </aside>
   )
 }
