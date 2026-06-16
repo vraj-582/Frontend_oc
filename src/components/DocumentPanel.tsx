@@ -166,14 +166,13 @@ export function DocumentPanel({
   return (
     <aside
       style={{
-        width: panelView === 'flow' ? 380 : 300,
+        width: 380,
         flexShrink: 0,
         display: 'flex',
         flexDirection: 'column',
         borderLeft: '1px solid var(--border)',
         background: panelView === 'flow' ? '#FAFAFE' : 'var(--bg)',
         overflow: 'hidden',
-        transition: 'width 200ms ease',
       }}
     >
       {/* Header — tab toggle + close */}
